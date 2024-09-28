@@ -76,16 +76,16 @@ namespace Gravity_Simulation
 
             switch (e.KeyCode)
             {
-                case Keys.W:
+                case Keys.W or Keys.Up:
                     cameraPosition.Y -= moveAmount; 
                     break;
-                case Keys.S:
+                case Keys.S or Keys.Down:
                     cameraPosition.Y += moveAmount;
                     break;
-                case Keys.A:
+                case Keys.A or Keys.Left:
                     cameraPosition.X -= moveAmount;
                     break;
-                case Keys.D:
+                case Keys.D or Keys.Right:
                     cameraPosition.X += moveAmount;
                     break;
             }
