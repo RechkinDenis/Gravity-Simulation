@@ -1,30 +1,18 @@
-using System;
-using System.Drawing;
-using System.Windows.Forms;
-
 namespace Gravity_Simulation
 {
-    public class SpaceObject
+    public class SpaceObject(Vector pos, double mass, double radius)
     {
-        public Vector Pos { get; set; }
-        public double Mass { get; }
-        public double Radius { get; }
-
-        public SpaceObject(Vector pos, double mass, double radius)
-        {
-            Pos = pos;
-            Mass = mass;
-            Radius = radius;
-        }
+        public Vector Pos { get; set; } = pos;
+        public double Mass { get; } = mass;
+        public double Radius { get; } = radius;
 
         public void Draw(Graphics g, float scale, Vector cameraPosition)
         {
-            // Рассчитываем экранные координаты с учетом положения камеры
-            float x = (float)((Pos.X - cameraPosition.X) * scale) + (800 / 2); // Центрируем по окну
-            float y = (float)((Pos.Y - cameraPosition.Y) * scale) + (600 / 2); // Центрируем по окну
+            var screenSize = Screen.PrimaryScreen.Bounds.Size;
+            float x = (float)((Pos.X - cameraPosition.X) * scale) + (screenSize.Width / 2);
+            float y = (float)((Pos.Y - cameraPosition.Y) * scale) + (screenSize.Height / 2);
             float diameter = (float)(Radius * scale);
 
-            // Проверяем, чтобы объект был видим на экране
             if (diameter > 0)
             {
                 g.FillEllipse(Brushes.Blue, x - diameter / 2, y - diameter / 2, diameter, diameter);
@@ -32,16 +20,10 @@ namespace Gravity_Simulation
         }
     }
 
-    public class Vector
+    public class Vector(double x, double y)
     {
-        public double X { get; set; }
-        public double Y { get; set; }
-
-        public Vector(double x, double y)
-        {
-            X = x;
-            Y = y;
-        }
+        public double X { get; set; } = x;
+        public double Y { get; set; } = y;
     }
 
     public class MainForm : Form
@@ -49,12 +31,12 @@ namespace Gravity_Simulation
         private SpaceObject earth;
         private SpaceObject moon;
         private float scale = 1e-6f; // Масштаб
-        private Vector cameraPosition = new(0, 0); // Положение "камеры"
+        private Vector cameraPosition = new(0, 0);
 
         public MainForm()
         {
-            earth = new SpaceObject(new Vector(0, 0), 5.972e24, 6371e3); // Земля
-            moon = new SpaceObject(new Vector(384400e3, 0), 7.347673e22, 1737.4e3); // Луна
+            earth = new SpaceObject(new Vector(0, 0), 5.972e24, 6371e3);
+            moon = new SpaceObject(new Vector(384400e3, 0), 7.347673e22, 1737.4e3);
 
             Paint += new PaintEventHandler(OnPaint);
             KeyDown += new KeyEventHandler(OnKeyDown);
