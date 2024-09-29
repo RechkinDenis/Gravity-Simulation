@@ -20,7 +20,7 @@ namespace Gravity_Simulation
         public MainForm()
         {
             earth = new SpaceObject(name: "earth", pos: new Vector(0, 0), inertia: new Vector(0, 0), mass: 5.972e24, radius: 6371e3);
-            moon = new SpaceObject(name: "moon", pos: new Vector(384400e3, 0), inertia: new Vector(0, 1022 * 555), mass: 7.347673e22, radius: 1737.4e3);
+            moon = new SpaceObject(name: "moon", pos: new Vector(384400e3, 0), inertia: new Vector(0, 1022 * 250), mass: 7.347673e22, radius: 1737.4e3);
 
             objects = [earth, moon];
 
@@ -39,6 +39,8 @@ namespace Gravity_Simulation
 
             controlForm = new ControlForm(this);
             controlForm.Show();
+
+            DoubleBuffered = true;
         }
 
         public void UpdateScale(float newScale)

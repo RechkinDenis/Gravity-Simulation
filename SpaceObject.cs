@@ -37,6 +37,7 @@ namespace Gravity_Simulation
 
         private void DrawInertionArrow(Graphics g, float scale, float x, float y)
         {
+            if(Inertia.X == 0 && Inertia.Y == 0) return;
             float arrowLength = 50f;
             float endX = x + (float)Inertia.X * arrowLength * scale;
             float endY = y + (float)Inertia.Y * arrowLength * scale;
