@@ -1,65 +1,78 @@
 namespace Gravity_Simulation
 {
-    public class SpaceObject(Vector pos, double mass, double radius)
-    {
-        public Vector Pos { get; set; } = pos;
-        public double Mass { get; } = mass;
-        public double Radius { get; } = radius;
-
-        public void Draw(Graphics g, float scale, Vector cameraPosition)
-        {
-            var screenSize = Screen.PrimaryScreen.Bounds.Size;
-            float x = (float)((Pos.X - cameraPosition.X) * scale) + (screenSize.Width / 2);
-            float y = (float)((Pos.Y - cameraPosition.Y) * scale) + (screenSize.Height / 2);
-            float diameter = (float)(Radius * scale);
-
-            if (diameter > 0)
-            {
-                g.FillEllipse(Brushes.Blue, x - diameter / 2, y - diameter / 2, diameter, diameter);
-            }
-        }
-    }
-
-    public class Vector(double x, double y)
-    {
-        public double X { get; set; } = x;
-        public double Y { get; set; } = y;
-    }
-
     public class MainForm : Form
     {
-        private SpaceObject earth;
-        private SpaceObject moon;
-        private float scale = 1e-6f; // Масштаб
-        private Vector cameraPosition = new(0, 0);
+        private readonly SpaceObject earth;
+        private readonly SpaceObject moon;
+        private readonly Vector cameraPosition = new(0, 0);
+        private float scale = 1e-6f; // scale 1e-6f
+        private readonly float scaleFactor = 1f;
+
+        public float Scale => scale;
+
+        private readonly System.Windows.Forms.Timer timer;
+        private readonly double deltaTime = 1;
+
+        private List<SpaceObject> objects = [];
+
+        private ControlForm controlForm;
 
         public MainForm()
         {
-            earth = new SpaceObject(new Vector(0, 0), 5.972e24, 6371e3);
-            moon = new SpaceObject(new Vector(384400e3, 0), 7.347673e22, 1737.4e3);
+            earth = new SpaceObject(name: "earth", pos: new Vector(0, 0), inertia: new Vector(0, 0), mass: 5.972e24, radius: 6371e3);
+            moon = new SpaceObject(name: "moon", pos: new Vector(384400e3, 0), inertia: new Vector(0, 1022 * 555), mass: 7.347673e22, radius: 1737.4e3);
+
+            objects = [earth, moon];
 
             Paint += new PaintEventHandler(OnPaint);
             KeyDown += new KeyEventHandler(OnKeyDown);
             var screenSize = Screen.PrimaryScreen.Bounds.Size;
             ClientSize = new Size(screenSize.Width, screenSize.Height);
+            WindowState = FormWindowState.Maximized;
+
+            timer = new System.Windows.Forms.Timer
+            {
+                Interval = 16
+            };
+            timer.Tick += OnTick; ;
+            timer.Start();
+
+            controlForm = new ControlForm(this);
+            controlForm.Show();
+        }
+
+        public void UpdateScale(float newScale)
+        {
+            scale = newScale;
+            Invalidate();
+        }
+
+        private void OnTick(object? sender, EventArgs e)
+        {
+            foreach (var obj in objects)
+            {
+                obj.UpdatePosition(deltaTime);
+            }
+            Invalidate();
         }
 
         private void OnPaint(object sender, PaintEventArgs e)
         {
             Graphics g = e.Graphics;
             g.Clear(Color.Black);
-            earth.Draw(g, scale, cameraPosition);
-            moon.Draw(g, scale, cameraPosition);
+            float s = scale * scaleFactor;
+            earth.Draw(g, s, cameraPosition);
+            moon.Draw(g, s, cameraPosition);
         }
 
         private void OnKeyDown(object sender, KeyEventArgs e)
         {
-            const float moveAmount = 100e3f * (10 * 10);
+            const float moveAmount = 100e3f * 100;
 
             switch (e.KeyCode)
             {
                 case Keys.W or Keys.Up:
-                    cameraPosition.Y -= moveAmount; 
+                    cameraPosition.Y -= moveAmount;
                     break;
                 case Keys.S or Keys.Down:
                     cameraPosition.Y += moveAmount;
