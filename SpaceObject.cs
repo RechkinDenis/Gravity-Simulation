@@ -15,11 +15,17 @@ namespace Gravity_Simulation
         #endregion
 
         #region formulas
-        public double GravitationalForce(SpaceObject obj)
+
+        public double GravitationalForce(double m1, double m2, double r)
         {
-            double distanceSq = (Pos - obj.Pos).LengthSquared();
-            if (distanceSq == 0) return 0;
-            return (G * Mass * obj.Mass) / distanceSq;
+            if (r == 0) throw new ArgumentException("Invalid args");
+            return G * (m1 * m2) / (r * r);
+        }
+
+        public static double CalculateAcceleration(double mass, double force)
+        {
+            if (mass == 0) throw new ArgumentException("Invalid args");
+            return force / mass; // a = F / m
         }
 
         #endregion
@@ -42,20 +48,22 @@ namespace Gravity_Simulation
 
         public void ApplyGravity(SpaceObject obj, double deltaTime)
         {
-            double force = GravitationalForce(obj);
-            double distance = Math.Sqrt((Pos.X - obj.Pos.X) * (Pos.X - obj.Pos.X) + (Pos.Y - obj.Pos.Y) * (Pos.Y - obj.Pos.Y));
+            Vector difference = obj.Pos - Pos;
 
-            if (distance > 0)
+            double distance = difference.Length();
+            double forceMagnitude = GravitationalForce(Mass, obj.Mass, distance);
+
+            if (forceMagnitude > 0 && distance > 0)
             {
-                double acceleration = force / Mass;
-
                 Vector direction = new(obj.Pos.X - Pos.X, obj.Pos.Y - Pos.Y);
+                direction.Normalize();
+
+                double acceleration = CalculateAcceleration(Mass, forceMagnitude);
 
                 Inertia.X += direction.X * acceleration * deltaTime;
                 Inertia.Y += direction.Y * acceleration * deltaTime;
             }
         }
-
 
         public void DrawName(Graphics g, float scale, float x, float y)
         {
@@ -78,7 +86,7 @@ namespace Gravity_Simulation
             DrawArrowHead(g, x, y, endX, endY);
         }
 
-        private void DrawArrowHead(Graphics g, float xStart, float yStart, float xEnd, float yEnd)
+        private static void DrawArrowHead(Graphics g, float xStart, float yStart, float xEnd, float yEnd)
         {
             var arrowAngle = Math.Atan2(yEnd - yStart, xEnd - xStart);
             var arrowSize = 10;

@@ -14,5 +14,20 @@
         {
             return X * X + Y * Y;
         }
+
+        public double Length()
+        {
+            return Math.Sqrt(LengthSquared());
+        }
+
+        public void Normalize()
+        {
+            double length = Math.Sqrt(X * X + Y * Y);
+            if (length > 0)
+            {
+                X /= length;
+                Y /= length;
+            }
+        }
     }
 }

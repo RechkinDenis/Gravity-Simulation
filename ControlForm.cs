@@ -18,13 +18,12 @@
         {
             scaleTrackBar = new TrackBar
             {
-                Minimum = 1, // Минимальное значение
-                Maximum = 100 // Максимальное значение
+                Minimum = 1,
+                Maximum = 100
             };
 
-            // Убедимся, что значение scale находится в диапазоне от 1 до 100
-            int initialValue = Math.Clamp((int)(mainForm.Scale * 1e6), scaleTrackBar.Minimum, scaleTrackBar.Maximum);
-            scaleTrackBar.Value = initialValue; // Присваиваем значение в допустимых пределах
+            int initialValue = Math.Clamp((int)(mainForm.Scale * 1e7), scaleTrackBar.Minimum, scaleTrackBar.Maximum);
+            scaleTrackBar.Value = initialValue;
             scaleTrackBar.Dock = DockStyle.Fill;
 
             scaleTrackBar.Scroll += ScaleTrackBar_Scroll;
@@ -35,7 +34,7 @@
 
         private void ScaleTrackBar_Scroll(object sender, EventArgs e)
         {
-            float newScale = scaleTrackBar.Value / 1e6f;
+            float newScale = scaleTrackBar.Value / 1e7f;
             mainForm.UpdateScale(newScale);
         }
     }

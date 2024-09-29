@@ -2,16 +2,14 @@ namespace Gravity_Simulation
 {
     public class MainForm : Form
     {
-        private readonly SpaceObject earth;
-        private readonly SpaceObject moon;
-        private readonly Vector cameraPosition = new(0, 0);
-        private float scale = 1e-6f; // scale 1e-6f
-        private readonly float scaleFactor = 1f;
+        private readonly Vector cameraPosition = new(9.98948e10, 0);
+        private float scale = 1e-7f; // scale 1e-6f
+        private readonly float scaleFactor = 0.01f;
 
         public float Scale => scale;
 
         private readonly System.Windows.Forms.Timer timer;
-        private readonly double deltaTime = 1;
+        private readonly double deltaTime = 120000;
 
         private List<SpaceObject> objects = [];
 
@@ -19,14 +17,11 @@ namespace Gravity_Simulation
 
         public MainForm()
         {
-            earth = new SpaceObject(name: "earth", pos: new Vector(0, 0), inertia: new Vector(0, 0), mass: 5.972e24, radius: 6371e3);
-            moon = new SpaceObject(name: "moon", pos: new Vector(384400e3, 0), inertia: new Vector(0, 1022 * 250), mass: 7.347673e22, radius: 1737.4e3);
-
-            objects = [earth, moon];
-
-            //MessageBox.Show($"{earth.DistanceSquared(moon)}");
-
-            //return;
+            objects = [
+                new SpaceObject(name: "sun", pos: new Vector(0, 0), inertia: new Vector(0, 0), mass: 1.989e30, radius: 6.957e8),
+                new SpaceObject(name: "earth", pos: new Vector(1.496e11, 0), inertia: new Vector(0, 29783), mass: 5.972e24, radius: 6371e3),
+                new SpaceObject(name: "moon", pos: new Vector(1.496e11 + 384400e3, 0), inertia: new Vector(0, 29783 + 1022), mass: 7.347673e22, radius: 1737.4e3)
+            ];
 
             Paint += new PaintEventHandler(OnPaint);
             KeyDown += new KeyEventHandler(OnKeyDown);
@@ -36,9 +31,9 @@ namespace Gravity_Simulation
 
             timer = new System.Windows.Forms.Timer
             {
-                Interval = 16
+                Interval = 10
             };
-            timer.Tick += OnTick; ;
+            timer.Tick += OnTick;
             timer.Start();
 
             controlForm = new ControlForm(this);
@@ -71,6 +66,13 @@ namespace Gravity_Simulation
                 obj.UpdatePosition(deltaTime);
             }
 
+            var earth = objects.FirstOrDefault(o => o.Name == "earth");
+            if (earth != null)
+            {
+                cameraPosition.X = earth.Pos.X;
+                cameraPosition.Y = earth.Pos.Y;
+            }
+
             Invalidate();
         }
 
@@ -79,13 +81,16 @@ namespace Gravity_Simulation
             Graphics g = e.Graphics;
             g.Clear(Color.Black);
             float s = scale * scaleFactor;
-            earth.Draw(g, s, cameraPosition);
-            moon.Draw(g, s, cameraPosition);
+
+            foreach (var obj in objects)
+            {
+                obj.Draw(g, s, cameraPosition);
+            }
         }
 
         private void OnKeyDown(object sender, KeyEventArgs e)
         {
-            const float moveAmount = 100e3f * 100;
+            const float moveAmount = 100e3f * 1000;
 
             switch (e.KeyCode)
             {
