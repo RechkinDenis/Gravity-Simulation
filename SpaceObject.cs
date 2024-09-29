@@ -10,6 +10,20 @@ namespace Gravity_Simulation
         public double Mass { get; } = mass;
         public double Radius { get; } = radius;
 
+        #region const
+        public const double G = 6.67408e-11;
+        #endregion
+
+        #region formulas
+        public double GravitationalForce(SpaceObject obj)
+        {
+            double distanceSq = (Pos - obj.Pos).LengthSquared();
+            if (distanceSq == 0) return 0;
+            return (G * Mass * obj.Mass) / distanceSq;
+        }
+
+        #endregion
+
         public void Draw(Graphics g, float scale, Vector cameraPosition)
         {
             var screenSize = Screen.PrimaryScreen.Bounds.Size;
@@ -25,6 +39,23 @@ namespace Gravity_Simulation
 
             DrawInertionArrow(g, scale, x, y);
         }
+
+        public void ApplyGravity(SpaceObject obj, double deltaTime)
+        {
+            double force = GravitationalForce(obj);
+            double distance = Math.Sqrt((Pos.X - obj.Pos.X) * (Pos.X - obj.Pos.X) + (Pos.Y - obj.Pos.Y) * (Pos.Y - obj.Pos.Y));
+
+            if (distance > 0)
+            {
+                double acceleration = force / Mass;
+
+                Vector direction = new(obj.Pos.X - Pos.X, obj.Pos.Y - Pos.Y);
+
+                Inertia.X += direction.X * acceleration * deltaTime;
+                Inertia.Y += direction.Y * acceleration * deltaTime;
+            }
+        }
+
 
         public void DrawName(Graphics g, float scale, float x, float y)
         {

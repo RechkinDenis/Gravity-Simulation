@@ -15,7 +15,7 @@ namespace Gravity_Simulation
 
         private List<SpaceObject> objects = [];
 
-        private ControlForm controlForm;
+        private readonly ControlForm controlForm;
 
         public MainForm()
         {
@@ -23,6 +23,10 @@ namespace Gravity_Simulation
             moon = new SpaceObject(name: "moon", pos: new Vector(384400e3, 0), inertia: new Vector(0, 1022 * 250), mass: 7.347673e22, radius: 1737.4e3);
 
             objects = [earth, moon];
+
+            //MessageBox.Show($"{earth.DistanceSquared(moon)}");
+
+            //return;
 
             Paint += new PaintEventHandler(OnPaint);
             KeyDown += new KeyEventHandler(OnKeyDown);
@@ -51,10 +55,22 @@ namespace Gravity_Simulation
 
         private void OnTick(object? sender, EventArgs e)
         {
+            for (int i = 0; i < objects.Count; i++)
+            {
+                for (int j = 0; j < objects.Count; j++)
+                {
+                    if (i != j)
+                    {
+                        objects[i].ApplyGravity(objects[j], deltaTime);
+                    }
+                }
+            }
+
             foreach (var obj in objects)
             {
                 obj.UpdatePosition(deltaTime);
             }
+
             Invalidate();
         }
 
