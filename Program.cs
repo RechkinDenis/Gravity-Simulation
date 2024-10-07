@@ -6,32 +6,26 @@ namespace Gravity_Simulation
         private float scale = 1e-7f; // scale 1e-6f
         private readonly float scaleFactor = 0.01f;
 
-        public float Scale => scale;
+        new public float Scale => scale;
 
         private readonly System.Windows.Forms.Timer timer;
         private readonly double deltaTime = 120000;
 
-        private List<SpaceObject> objects = [];
+        private readonly List<SpaceObject> objects = Objects.objects;
 
         private readonly ControlForm controlForm;
 
         public MainForm()
         {
-            objects = [
-                new SpaceObject(name: "sun", pos: new Vector(0, 0), inertia: new Vector(0, 0), mass: 1.989e30, radius: 6.957e8),
-                new SpaceObject(name: "earth", pos: new Vector(1.496e11, 0), inertia: new Vector(0, 29783), mass: 5.972e24, radius: 6371e3),
-                new SpaceObject(name: "moon", pos: new Vector(1.496e11 + 384400e3, 0), inertia: new Vector(0, 29783 + 1022), mass: 7.347673e22, radius: 1737.4e3)
-            ];
-
             Paint += new PaintEventHandler(OnPaint);
             KeyDown += new KeyEventHandler(OnKeyDown);
-            var screenSize = Screen.PrimaryScreen.Bounds.Size;
+            var screenSize = Screen.PrimaryScreen?.Bounds.Size ?? new Size(800, 600);
             ClientSize = new Size(screenSize.Width, screenSize.Height);
             WindowState = FormWindowState.Maximized;
 
             timer = new System.Windows.Forms.Timer
             {
-                Interval = 10
+                Interval = 15
             };
             timer.Tick += OnTick;
             timer.Start();
@@ -48,7 +42,7 @@ namespace Gravity_Simulation
             Invalidate();
         }
 
-        private void OnTick(object? sender, EventArgs e)
+        private void OnTick(object? sender, EventArgs? e)
         {
             for (int i = 0; i < objects.Count; i++)
             {
@@ -66,7 +60,7 @@ namespace Gravity_Simulation
                 obj.UpdatePosition(deltaTime);
             }
 
-            var earth = objects.FirstOrDefault(o => o.Name == "earth");
+            var earth = objects.FirstOrDefault(o => o.Name == "sun");
             if (earth != null)
             {
                 cameraPosition.X = earth.Pos.X;
@@ -76,8 +70,13 @@ namespace Gravity_Simulation
             Invalidate();
         }
 
-        private void OnPaint(object sender, PaintEventArgs e)
+        private void OnPaint(object? sender, PaintEventArgs? e)
         {
+            if (e?.Graphics == null)
+            {
+                return;
+            }
+
             Graphics g = e.Graphics;
             g.Clear(Color.Black);
             float s = scale * scaleFactor;
@@ -88,7 +87,7 @@ namespace Gravity_Simulation
             }
         }
 
-        private void OnKeyDown(object sender, KeyEventArgs e)
+        private void OnKeyDown(object? sender, KeyEventArgs e)
         {
             const float moveAmount = 100e3f * 1000;
 

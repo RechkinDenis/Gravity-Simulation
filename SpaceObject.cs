@@ -32,7 +32,7 @@ namespace Gravity_Simulation
 
         public void Draw(Graphics g, float scale, Vector cameraPosition)
         {
-            var screenSize = Screen.PrimaryScreen.Bounds.Size;
+            var screenSize = Screen.PrimaryScreen?.Bounds.Size ?? new Size(800, 600);
             float x = (float)((Pos.X - cameraPosition.X) * scale) + (screenSize.Width / 2);
             float y = (float)((Pos.Y - cameraPosition.Y) * scale) + (screenSize.Height / 2);
             float diameter = (float)(Radius * scale);
